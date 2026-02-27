@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Dark only — Prussian blue palette */
+  :root {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 205 100% 20%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 14%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 205 80% 30%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 205 80% 35%;
+    --chart-1: 205 80% 45%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  button,
+  a,
+  [role="button"],
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  input[type="button"],
+  summary {
+    cursor: pointer;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* LiveKit component overrides — match Prussian blue dark theme */
+@layer components {
+  /* Strip LiveKit's default backgrounds so our layout controls the look */
+  [data-lk-theme] {
+    --lk-bg: transparent;
+    --lk-bg2: transparent;
+    --lk-control-bg: transparent;
+    --lk-control-hover-bg: hsl(var(--secondary));
+    --lk-fg: hsl(var(--foreground));
+    --lk-border-color: hsl(var(--border));
+    --lk-accent-bg: hsl(var(--primary));
+    --lk-accent-fg: hsl(var(--primary-foreground));
+    --lk-danger-bg: hsl(var(--destructive));
+    --lk-danger-fg: hsl(var(--destructive-foreground));
+  }
+
+  .lk-focus-layout {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+  }
+
+  .lk-focus-layout .lk-participant-tile {
+    border-radius: 0;
+    border: none;
+    background: black;
+  }
+
+  .lk-focus-layout .lk-participant-tile video {
+    object-fit: contain;
+  }
+
+  /* Connection quality indicator in our header */
+  .lk-connection-quality {
+    display: inline-flex;
+  }
+
+  /* TrackToggle — strip LiveKit defaults, we style via className */
+  .lk-button-icon {
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* DisconnectButton — strip defaults */
+  .lk-disconnect-button {
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* StartAudio overlay button */
+  .lk-start-audio-button {
+    z-index: 50;
+  }
+}

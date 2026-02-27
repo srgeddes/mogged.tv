@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build output
+dist/
+build/
+*.egg-info/
+
+# Env files (secrets)
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
