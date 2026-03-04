@@ -73,9 +73,10 @@ class Stream(Base, TimestampMixin, SoftDeleteMixin):
     recording_url: Mapped[str | None] = mapped_column(String(500))
     thumbnail_url: Mapped[str | None] = mapped_column(String(500))
     access_level: Mapped[StreamAccessLevel] = mapped_column(
-        Enum(StreamAccessLevel, name="stream_access_level"), default=StreamAccessLevel.PUBLIC
+        Enum(StreamAccessLevel, name="stream_access_level"), default=StreamAccessLevel.FRIENDS
     )
     org_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("organizations.id"), nullable=True)
+    secret_slug: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     aura_pool: Mapped[int] = mapped_column(Integer, default=0)
     max_viewers: Mapped[int | None] = mapped_column(Integer)
 

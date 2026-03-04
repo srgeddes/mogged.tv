@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react"
 
 const marqueeItems = [
   "No more boring meetings",
-  "Zoom is mid",
+  "Meetings are boring",
   "Get mogged",
   "Stream like you mean it",
   "Your aura is showing",
@@ -43,10 +43,10 @@ export function CTA() {
           transition={{ duration: 0.7 }}
         >
           <h2 className="font-display text-5xl font-black tracking-tight text-foreground md:text-6xl lg:text-7xl">
-            Stop being boring.
+            Your team deserves better.
           </h2>
           <p className="mt-6 text-lg text-muted-foreground md:text-xl">
-            Your friends are waiting. Your stream is ready. The only thing missing is you.
+            Set up in minutes. No IT ticket required.
           </p>
 
           <div className="mt-12 flex justify-center">
@@ -62,7 +62,7 @@ export function CTA() {
           </div>
 
           <p className="mt-16 font-mono text-xs tracking-widest text-muted-foreground/30 uppercase">
-            Built because Zoom is mid
+            Built because meetings are boring
           </p>
         </motion.div>
       </div>

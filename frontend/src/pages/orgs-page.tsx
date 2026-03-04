@@ -33,7 +33,7 @@ export function OrgsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-foreground">Organizations</h1>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>

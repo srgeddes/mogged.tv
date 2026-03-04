@@ -7,7 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_async_session
 
-from .repository import AuraTransactionRepository, UserRepository, UserStatsRepository
+from .repository import (
+    AuraTransactionRepository,
+    StatsQueryRepository,
+    UserRepository,
+    UserStatsRepository,
+)
 
 
 async def get_user_repository(
@@ -26,3 +31,9 @@ async def get_user_stats_repository(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> UserStatsRepository:
     return UserStatsRepository(session)
+
+
+async def get_stats_query_repository(
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> StatsQueryRepository:
+    return StatsQueryRepository(session)

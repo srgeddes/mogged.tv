@@ -88,8 +88,8 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 1.2 }}
           className="mx-auto mt-8 max-w-2xl font-display text-lg text-muted-foreground md:text-xl"
         >
-          Live streaming that&apos;s actually fun. No corporate bloat, no 47-person Zoom grids,
-          no &quot;you&apos;re on mute.&quot; Just you, your people, and vibes.
+          A private streaming platform for your team. Replace soul-crushing
+          standups with something your people actually want to join.
         </motion.p>
 
         {/* CTAs */}
@@ -110,7 +110,10 @@ export function Hero() {
               <ArrowRight className="h-4 w-4" />
             </ShimmerButton>
           </Link>
-          <button className="group flex h-12 items-center gap-2 rounded-full px-8 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          <button
+            onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
+            className="group flex h-12 items-center gap-2 rounded-full px-8 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-card/50 transition-colors group-hover:border-primary/40">
               <svg className="ml-0.5 h-3 w-3" viewBox="0 0 12 12" fill="currentColor">
                 <polygon points="3,1 11,6 3,11" />
@@ -127,7 +130,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 2 }}
           className="mt-20 font-mono text-xs tracking-widest text-muted-foreground/50 uppercase"
         >
-          Zoom is mid. Get mogged.
+          Meetings are boring. Get mogged.
         </motion.p>
       </div>
     </section>

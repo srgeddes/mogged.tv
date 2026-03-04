@@ -29,7 +29,7 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     display_name: Mapped[str | None] = mapped_column(String(100))
     bio: Mapped[str | None] = mapped_column(Text)
     avatar_url: Mapped[str | None] = mapped_column(String(500))
-    aura_balance: Mapped[int] = mapped_column(Integer, default=0)
+    aura_balance: Mapped[int] = mapped_column(Integer, default=1000)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
 
     streams: Mapped[list[Stream]] = relationship(

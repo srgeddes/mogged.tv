@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { Radio, Globe, Users, Building2, Link2 } from "lucide-react"
 import {
   Dialog,
@@ -15,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useStreamActions } from "@/hooks/use-streams"
 import { useOrganizations } from "@/hooks/use-organizations"
 import { cn } from "@/lib/utils"
+import { showInfo } from "@/lib/toast"
 import type { StreamAccessLevel } from "@/types"
 
 interface GoLiveDialogProps {
@@ -31,7 +31,7 @@ const ACCESS_OPTIONS: {
   {
     value: "public",
     label: "Public",
-    description: "Anyone can join",
+    description: "Anyone can watch",
     icon: <Globe className="h-4 w-4" />,
   },
   {
@@ -48,8 +48,8 @@ const ACCESS_OPTIONS: {
   },
   {
     value: "link_only",
-    label: "Invite Link",
-    description: "Only with a link",
+    label: "Private URL",
+    description: "Hidden — shareable link only",
     icon: <Link2 className="h-4 w-4" />,
   },
 ]
@@ -62,7 +62,6 @@ export function GoLiveDialog({ trigger, onCreated }: GoLiveDialogProps) {
   const [orgId, setOrgId] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const navigate = useNavigate()
   const { user } = useAuth()
   const { createStream, startStream } = useStreamActions()
   const { data: orgs } = useOrganizations()
@@ -83,13 +82,14 @@ export function GoLiveDialog({ trigger, onCreated }: GoLiveDialogProps) {
       if (result) {
         setOpen(false)
         resetForm()
-        navigate(`/${user!.username}`, {
-          state: {
-            token: result.token,
-            livekitUrl: result.livekit_url,
-            stream: result.stream,
-          },
-        })
+        window.open(`/${user!.username}`, "mogged-stream")
+
+        if (accessLevel === "link_only" && result.stream.secret_slug) {
+          const privateUrl = `${window.location.origin}/${user!.username}/${result.stream.secret_slug}`
+          navigator.clipboard.writeText(privateUrl)
+          showInfo(`Private URL copied: ${privateUrl}`)
+        }
+
         onCreated?.()
       }
     }
@@ -100,7 +100,7 @@ export function GoLiveDialog({ trigger, onCreated }: GoLiveDialogProps) {
   const resetForm = () => {
     setTitle("")
     setDescription("")
-    setAccessLevel("public")
+    setAccessLevel("friends")
     setOrgId("")
   }
 
@@ -116,7 +116,7 @@ export function GoLiveDialog({ trigger, onCreated }: GoLiveDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-red-400" />
+            <Radio className="h-5 w-5 text-live" />
             Go Live
           </DialogTitle>
         </DialogHeader>

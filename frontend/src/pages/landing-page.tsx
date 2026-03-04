@@ -17,7 +17,7 @@ export function LandingPage() {
       <footer className="border-t border-border/30 py-8">
         <div className="mx-auto max-w-7xl px-6 text-center">
           <p className="font-mono text-xs text-muted-foreground/40">
-            mogged.tv &mdash; Zoom is mid. Get mogged.
+            mogged.tv &mdash; Meetings are boring. Get mogged.
           </p>
         </div>
       </footer>

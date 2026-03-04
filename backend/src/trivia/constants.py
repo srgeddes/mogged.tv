@@ -8,7 +8,7 @@ AURA_REWARDS: dict[str, int] = {
 
 BRAIN_ROT_AURA_REWARD = 30
 
-TIMER_SECONDS = 5
+TIMER_SECONDS = 10
 
 # Maps OpenTDB category IDs to (name, slug, icon) tuples.
 OPENTDB_CATEGORIES: dict[int, tuple[str, str, str]] = {

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/use-auth"
+import { useOrganizations } from "@/hooks/use-organizations"
 import { Logo } from "./logo"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,11 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LogOut, User } from "lucide-react"
+import { LogOut, Sparkles, User } from "lucide-react"
+import { AuroraText } from "@/components/magicui/aurora-text"
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
+  const { data: orgs } = useOrganizations()
   const navigate = useNavigate()
+  const primaryOrg = orgs?.[0]
 
   const handleLogout = () => {
     logout()
@@ -31,13 +35,28 @@ export function Navbar() {
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full border border-border/40 bg-card/50 px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-card">
+                <button className="flex cursor-pointer items-center gap-2 rounded-full border border-border/40 bg-card/50 px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-card">
                   <Avatar className="h-6 w-6">
                     <AvatarFallback className="bg-primary/20 text-xs font-medium text-primary-foreground">
                       {user?.display_name?.[0] ?? user?.username?.[0] ?? "?"}
                     </AvatarFallback>
                   </Avatar>
                   <span className="font-mono text-sm">{user?.display_name ?? user?.username}</span>
+                  <span className="text-muted-foreground/30">|</span>
+                  <Sparkles className="h-3.5 w-3.5 text-foreground/80" />
+                  <AuroraText
+                    className="font-mono text-xs font-bold"
+                    colors={["#003153", "#0066aa", "#ffffff", "#0099dd"]}
+                    speed={2}
+                  >
+                    {user?.aura_balance?.toLocaleString() ?? "0"}
+                  </AuroraText>
+                  {primaryOrg && (
+                    <>
+                      <span className="text-muted-foreground/30">|</span>
+                      <span className="font-mono text-xs text-muted-foreground">{primaryOrg.name}</span>
+                    </>
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -47,7 +66,7 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 text-destructive" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
-                  Sign out
+                  Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -10,9 +10,14 @@ from core.exceptions import NotFoundError
 from users.models import User
 
 from . import service
-from .dependencies import get_user_repository, get_user_stats_repository
-from .repository import UserRepository, UserStatsRepository
-from .schemas import UpdateProfileRequest, UserProfileResponse, UserSearchResult, UserStatsResponse
+from .dependencies import get_stats_query_repository, get_user_repository
+from .repository import StatsQueryRepository, UserRepository
+from .schemas import (
+    UpdateProfileRequest,
+    UserProfileResponse,
+    UserSearchResult,
+    UserStatsOverview,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -40,15 +45,13 @@ async def update_me(
     return UserProfileResponse.model_validate(user, from_attributes=True)
 
 
-@router.get("/me/stats", response_model=UserStatsResponse | None)
+@router.get("/me/stats", response_model=UserStatsOverview)
 async def get_my_stats(
     current_user: Annotated[User, Depends(get_current_user)],
-    stats_repo: Annotated[UserStatsRepository, Depends(get_user_stats_repository)],
-) -> UserStatsResponse | None:
-    stats = await service.get_user_stats(stats_repo, user_id=current_user.id)
-    if stats is None:
-        return None
-    return UserStatsResponse.model_validate(stats, from_attributes=True)
+    stats_repo: Annotated[StatsQueryRepository, Depends(get_stats_query_repository)],
+) -> UserStatsOverview:
+    data = await service.get_computed_stats(stats_repo, user_id=current_user.id)
+    return UserStatsOverview(**data)
 
 
 @router.get("/search", response_model=list[UserSearchResult])

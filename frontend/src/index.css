@@ -5,7 +5,7 @@
 @layer base {
   /* Dark only — Prussian blue palette */
   :root {
-    --background: 222 47% 5%;
+    --background: 0 0% 0%;
     --foreground: 210 40% 96%;
     --card: 222 47% 8%;
     --card-foreground: 210 40% 96%;
@@ -29,6 +29,12 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --live: 0 84% 60%;
+    --live-foreground: 0 0% 100%;
+    --success: 152 69% 31%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 0%;
     --radius: 0.5rem;
   }
 
@@ -56,6 +62,30 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom scrollbar — transparent track, subtle thumb */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4);
   }
 }
 

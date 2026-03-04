@@ -65,16 +65,16 @@ export function ProfilePage() {
 
   const quickStats = stats
     ? [
-        { icon: <Tv className="h-4 w-4" />, label: "Streams", value: stats.total_streams_hosted, color: "text-primary" },
-        { icon: <Clock className="h-4 w-4" />, label: "Watch time", value: formatDuration(stats.total_watch_time_seconds), color: "text-blue-400" },
-        { icon: <Flame className="h-4 w-4" />, label: "Aura", value: stats.total_aura_earned.toLocaleString(), color: "text-amber-400" },
-        { icon: <MessageSquare className="h-4 w-4" />, label: "Messages", value: stats.total_messages_sent.toLocaleString(), color: "text-cyan-400" },
-        { icon: <Trophy className="h-4 w-4" />, label: "Longest stream", value: formatDuration(stats.longest_stream_seconds), color: "text-yellow-400" },
+        { icon: <Tv className="h-4 w-4" />, label: "Streams", value: stats.hosting.total_streams_hosted, color: "text-primary" },
+        { icon: <Clock className="h-4 w-4" />, label: "Watch time", value: formatDuration(stats.watching.total_watch_time_seconds), color: "text-blue-400" },
+        { icon: <Flame className="h-4 w-4" />, label: "Aura", value: stats.engagement.total_aura_earned.toLocaleString(), color: "text-primary" },
+        { icon: <MessageSquare className="h-4 w-4" />, label: "Messages", value: stats.engagement.total_messages_sent.toLocaleString(), color: "text-cyan-400" },
+        { icon: <Trophy className="h-4 w-4" />, label: "Longest stream", value: formatDuration(stats.hosting.longest_stream_seconds), color: "text-yellow-400" },
       ]
     : null
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="py-8">
       {/* Profile header */}
       <div className="flex items-start gap-6">
         <Avatar className="h-20 w-20 border-2 border-border/40">
@@ -200,7 +200,7 @@ export function ProfilePage() {
             className="flex w-full items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            Log out
           </button>
         </div>
       </div>

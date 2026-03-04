@@ -34,6 +34,7 @@ class UserResponse(BaseModel):
     email: str
     display_name: str | None
     avatar_url: str | None
+    aura_balance: int
     is_active: bool
 
 

@@ -32,6 +32,7 @@ class StreamResponse(BaseModel):
     ended_at: datetime | None
     thumbnail_url: str | None
     max_viewers: int | None
+    secret_slug: str | None = None
     host_username: str = ""
     host_display_name: str | None = None
     host_avatar_url: str | None = None

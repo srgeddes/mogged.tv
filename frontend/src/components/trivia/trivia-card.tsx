@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { Zap } from "lucide-react"
 import { BorderBeam } from "@/components/magicui/border-beam"
 import { TriviaTimer } from "./trivia-timer"
 import { CorrectAnimation } from "./correct-animation"
@@ -41,6 +42,7 @@ export function TriviaCard({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [timerRunning, setTimerRunning] = useState(false)
   const [exhausted, setExhausted] = useState(false)
+  const [autoAdvance, setAutoAdvance] = useState(false)
   const submittedRef = useRef(false)
 
   const fetchQuestion = useCallback(async () => {
@@ -88,6 +90,14 @@ export function TriviaCard({
     },
     [state, question, submitAnswer, onAuraEarned, onAnswered],
   )
+
+  // Auto-advance to next question after answer
+  useEffect(() => {
+    if (state !== "answered" || result == null || !autoAdvance) return
+    const delay = result.is_correct ? 1000 : 3000
+    const timeout = setTimeout(() => fetchQuestion(), delay)
+    return () => clearTimeout(timeout)
+  }, [state, result, autoAdvance, fetchQuestion])
 
   const handleTimerExpire = useCallback(() => {
     if (submittedRef.current) return
@@ -165,9 +175,23 @@ export function TriviaCard({
             {question.difficulty}
           </span>
         </div>
-        <span className="rounded-md bg-primary/10 px-2.5 py-0.5 font-mono text-xs font-bold text-primary">
-          +{auraReward} aura
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAutoAdvance((v) => !v)}
+            className={cn(
+              "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors",
+              autoAdvance
+                ? "bg-primary/20 text-primary"
+                : "text-muted-foreground/50 hover:text-muted-foreground",
+            )}
+          >
+            <Zap className="h-3 w-3" />
+            Auto
+          </button>
+          <span className="rounded-md bg-primary/10 px-2.5 py-0.5 font-mono text-xs font-bold text-primary">
+            +{auraReward} aura
+          </span>
+        </div>
       </div>
 
       {/* Question */}
@@ -231,13 +255,16 @@ export function TriviaCard({
           className="border-t border-border/30 px-5 py-4"
         >
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">
+            <p className="flex items-center gap-2 text-sm font-medium">
               {result.is_correct ? (
                 <span className="text-green-400">Correct! +{result.aura_earned} aura</span>
               ) : selectedAnswer === null ? (
                 <span className="text-muted-foreground">Time&apos;s up!</span>
               ) : (
                 <span className="text-red-400">Wrong answer</span>
+              )}
+              {autoAdvance && (
+                <span className="text-muted-foreground/50 text-xs">Continuing...</span>
               )}
             </p>
             <button

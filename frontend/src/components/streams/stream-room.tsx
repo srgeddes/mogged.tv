@@ -31,8 +31,8 @@ function ConnectionOverlay() {
       <div className="text-center">
         {connectionState === ConnectionState.Reconnecting ? (
           <>
-            <WifiOff className="mx-auto mb-3 h-8 w-8 animate-pulse text-yellow-400" />
-            <p className="text-sm font-medium text-yellow-400">Reconnecting...</p>
+            <WifiOff className="mx-auto mb-3 h-8 w-8 animate-pulse text-warning" />
+            <p className="text-sm font-medium text-warning">Reconnecting...</p>
             <p className="mt-1 text-xs text-muted-foreground">Hold tight, we're getting you back in.</p>
           </>
         ) : (
@@ -56,7 +56,9 @@ export function StreamRoom({ token, serverUrl, stream, isHost }: StreamRoomProps
       connect={true}
       audio={isHost}
       video={isHost}
-      onDisconnected={() => navigate("/home/feed")}
+      onDisconnected={() => {
+        navigate("/home/feed")
+      }}
       className="relative flex h-screen w-screen bg-background"
     >
       {/* LiveKit built-ins: renders all remote audio, handles autoplay policy */}

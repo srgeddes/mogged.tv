@@ -88,6 +88,7 @@ export interface Stream {
   status: StreamStatus
   room_name: string
   access_level: StreamAccessLevel
+  secret_slug: string | null
   org_id: string | null
   scheduled_at: string | null
   started_at: string | null
@@ -128,17 +129,58 @@ export interface UserSearchResult {
   avatar_url: string | null
 }
 
-export interface UserStats {
+export interface HostingStats {
   total_streams_hosted: number
+  total_stream_time_seconds: number
+  avg_stream_duration_seconds: number
+  longest_stream_seconds: number
+  total_peak_viewers: number
+  avg_peak_viewers: number
+  last_stream_ended_at: string | null
+}
+
+export interface WatchingStats {
   total_streams_watched: number
   total_watch_time_seconds: number
-  total_stream_time_seconds: number
-  total_aura_earned: number
-  total_aura_given: number
+  avg_watch_time_seconds: number
+  last_watched_at: string | null
+  favorite_host_username: string | null
+  favorite_host_display_name: string | null
+}
+
+export interface EngagementStats {
   total_messages_sent: number
   total_emotes_sent: number
-  longest_stream_seconds: number
+  total_aura_earned: number
+  total_aura_given: number
   biggest_aura_drop: number
+}
+
+export interface HostedStreamItem {
+  id: string
+  title: string
+  started_at: string | null
+  ended_at: string | null
+  duration_seconds: number
+  max_viewers: number | null
+}
+
+export interface WatchedStreamItem {
+  stream_id: string
+  title: string
+  host_username: string
+  host_display_name: string | null
+  joined_at: string
+  left_at: string | null
+  watch_time_seconds: number
+}
+
+export interface UserStatsOverview {
+  hosting: HostingStats
+  watching: WatchingStats
+  engagement: EngagementStats
+  hosted_streams: HostedStreamItem[]
+  watched_streams: WatchedStreamItem[]
 }
 
 // --- Trivia ---

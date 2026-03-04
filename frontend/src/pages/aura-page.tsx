@@ -6,7 +6,7 @@ import { CategorySelector } from "@/components/trivia/category-selector"
 import { TriviaCard } from "@/components/trivia/trivia-card"
 
 export function AuraPage() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const { data: categories } = useTriviaCategories()
   const { data: stats, refetch: refetchStats } = useTriviaStats()
   const { getQuestion, submitAnswer } = useTriviaActions()
@@ -19,18 +19,19 @@ export function AuraPage() {
 
   const handleAuraEarned = useCallback((newBalance: number) => {
     setAuraBalance(newBalance)
-  }, [])
+    updateUser({ aura_balance: newBalance })
+  }, [updateUser])
 
   const handleAnswered = useCallback(() => {
     refetchStats()
   }, [refetchStats])
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="py-10">
       {/* Aura Display */}
-      <div className="mb-8 text-center">
-        <h1 className="mb-4 font-display text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          Your Aura
+      <div className="mb-10 text-center">
+        <h1 className="mb-6 font-display text-sm font-medium uppercase tracking-widest text-muted-foreground">
+          Aura Farming
         </h1>
         <AuraDisplay
           balance={displayBalance}
@@ -42,7 +43,7 @@ export function AuraPage() {
 
       {/* Category Selector */}
       {categories && categories.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-8">
           <CategorySelector
             categories={categories}
             selected={selectedCategory}
@@ -52,6 +53,7 @@ export function AuraPage() {
       )}
 
       {/* Trivia Card */}
+      <div className="mx-auto max-w-xl">
       <TriviaCard
         categorySlug={selectedCategory}
         onAuraEarned={handleAuraEarned}
@@ -59,6 +61,7 @@ export function AuraPage() {
         getQuestion={getQuestion}
         submitAnswer={submitAnswer}
       />
+      </div>
     </div>
   )
 }

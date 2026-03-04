@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { AceternityInput } from "@/components/aceternity/input"
 import { Label } from "@/components/ui/label"
 import { LoadingButton } from "@/components/common/loading-button"
 
@@ -43,7 +43,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
+            <AceternityInput
               id="email"
               type="email"
               placeholder="you@example.com"
@@ -55,10 +55,10 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
+            <AceternityInput
               id="password"
               type="password"
-              placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+              placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

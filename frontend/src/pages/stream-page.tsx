@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useParams, useLocation, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { Tv } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useStreamActions } from "@/hooks/use-streams"
@@ -7,35 +7,31 @@ import { StreamRoom } from "@/components/streams/stream-room"
 import { Button } from "@/components/ui/button"
 import type { Stream } from "@/types"
 
-interface LocationState {
-  token?: string
-  livekitUrl?: string
-  stream?: Stream
-}
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api"
 
 export function StreamPage() {
-  const { username } = useParams<{ username: string }>()
-  const location = useLocation()
+  const { username, slug } = useParams<{ username: string; slug?: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { joinStream, getLiveStreamByUsername } = useStreamActions()
+  const { joinStream, getLiveStreamByUsername, getLiveStreamBySlug } = useStreamActions()
 
-  const state = location.state as LocationState | null
-
-  const [token, setToken] = useState<string | null>(state?.token ?? null)
-  const [serverUrl, setServerUrl] = useState<string | null>(state?.livekitUrl ?? null)
-  const [stream, setStream] = useState<Stream | null>(state?.stream ?? null)
-  const [isLoading, setIsLoading] = useState(!state?.token)
+  const [token, setToken] = useState<string | null>(null)
+  const [serverUrl, setServerUrl] = useState<string | null>(null)
+  const [stream, setStream] = useState<Stream | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [notLive, setNotLive] = useState(false)
 
+  const isHost = user != null && user.id === stream?.host_id
+
   useEffect(() => {
-    if (token && serverUrl && stream) return
     if (!username) return
 
     let cancelled = false
 
     async function connect() {
-      const liveStream = await getLiveStreamByUsername(username!)
+      const liveStream = slug
+        ? await getLiveStreamBySlug(username!, slug)
+        : await getLiveStreamByUsername(username!)
       if (cancelled) return
 
       if (!liveStream) {
@@ -44,7 +40,13 @@ export function StreamPage() {
         return
       }
 
-      const result = await joinStream(liveStream.id)
+      // If not logged in and stream isn't public, redirect to login
+      if (!user && liveStream.access_level !== "public") {
+        navigate("/login", { replace: true })
+        return
+      }
+
+      const result = await joinStream(liveStream.id, slug ?? undefined)
       if (cancelled) return
 
       if (!result) {
@@ -62,7 +64,35 @@ export function StreamPage() {
     return () => {
       cancelled = true
     }
-  }, [username, token, serverUrl, stream, joinStream, getLiveStreamByUsername])
+  }, [username, slug, user, joinStream, getLiveStreamByUsername, getLiveStreamBySlug, navigate])
+
+  // Confirmation dialog when host tries to close/refresh the tab
+  useEffect(() => {
+    if (!isHost) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+    }
+    window.addEventListener("beforeunload", handler)
+    return () => window.removeEventListener("beforeunload", handler)
+  }, [isHost])
+
+  // End the stream when the host's tab closes
+  useEffect(() => {
+    if (!isHost || !stream) return
+    const handler = () => {
+      const authToken = localStorage.getItem("mogged_token")
+      fetch(`${API_BASE}/streams/${stream.id}/end`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`,
+        },
+        keepalive: true,
+      })
+    }
+    window.addEventListener("pagehide", handler)
+    return () => window.removeEventListener("pagehide", handler)
+  }, [isHost, stream])
 
   if (notLive) {
     return (
@@ -97,8 +127,6 @@ export function StreamPage() {
       </div>
     )
   }
-
-  const isHost = user?.id === stream.host_id
 
   return (
     <StreamRoom

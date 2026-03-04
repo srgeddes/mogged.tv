@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { api, ApiError } from "@/lib/api"
 import { showError, showSuccess } from "@/lib/toast"
-import type { JoinStreamResponse, StartStreamResponse, Stream, StreamAccessLevel, UserStats } from "@/types"
+import type { JoinStreamResponse, StartStreamResponse, Stream, StreamAccessLevel, UserStatsOverview } from "@/types"
 import { useApi } from "./use-api"
 
 export function useLiveStreams() {
@@ -13,7 +13,7 @@ export function useRecentStreams() {
 }
 
 export function useUserStats() {
-  return useApi<UserStats | null>(() => api.get("/users/me/stats"))
+  return useApi<UserStatsOverview>(() => api.get("/users/me/stats"))
 }
 
 export function useStreamActions() {
@@ -49,9 +49,10 @@ export function useStreamActions() {
     }
   }, [])
 
-  const joinStream = useCallback(async (streamId: string) => {
+  const joinStream = useCallback(async (streamId: string, inviteToken?: string) => {
     try {
-      return await api.post<JoinStreamResponse>(`/streams/${streamId}/join`)
+      const query = inviteToken ? `?invite_token=${encodeURIComponent(inviteToken)}` : ""
+      return await api.post<JoinStreamResponse>(`/streams/${streamId}/join${query}`)
     } catch (err) {
       showError(err instanceof ApiError ? err.message : "Failed to join stream")
       return null
@@ -78,5 +79,14 @@ export function useStreamActions() {
     }
   }, [])
 
-  return { createStream, startStream, joinStream, endStream, getLiveStreamByUsername }
+  const getLiveStreamBySlug = useCallback(async (username: string, slug: string) => {
+    try {
+      return await api.get<Stream | null>(`/streams/live/u/${username}/${slug}`)
+    } catch (err) {
+      showError(err instanceof ApiError ? err.message : "Failed to load stream")
+      return null
+    }
+  }, [])
+
+  return { createStream, startStream, joinStream, endStream, getLiveStreamByUsername, getLiveStreamBySlug }
 }

@@ -60,7 +60,7 @@ export function Logo({ size = "md", className, showText = true }: LogoProps) {
       </svg>
       {showText && (
         <span className={cn("font-display font-bold tracking-tight text-foreground", text)}>
-          mogged<span className="text-primary">.tv</span>
+          mogged<span className="text-accent">.tv</span>
         </span>
       )}
     </div>

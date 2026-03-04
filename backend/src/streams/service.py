@@ -40,18 +40,20 @@ def _create_livekit_token(
     """Generate a LiveKit access token using the livekit-api SDK."""
     from livekit.api import AccessToken, VideoGrants
 
-    token = AccessToken(
-        api_key=settings.livekit_api_key,
-        api_secret=settings.livekit_api_secret,
-    )
-    token.identity = identity
-    token.name = name
-    token.add_grant(
-        VideoGrants(
-            room_join=True,
-            room=room_name,
-            can_publish=can_publish,
-            can_subscribe=can_subscribe,
+    token = (
+        AccessToken(
+            api_key=settings.livekit_api_key,
+            api_secret=settings.livekit_api_secret,
+        )
+        .with_identity(identity)
+        .with_name(name)
+        .with_grants(
+            VideoGrants(
+                room_join=True,
+                room=room_name,
+                can_publish=can_publish,
+                can_subscribe=can_subscribe,
+            )
         )
     )
     return token.to_jwt()
@@ -68,6 +70,10 @@ async def create_stream(
     scheduled_at: datetime | None,
     org_member_repo: OrganizationMemberRepository | None = None,
 ) -> Stream:
+    existing_live = await stream_repo.get_live_by_host_id(host_id)
+    if existing_live is not None:
+        raise ValidationError("You already have a live stream. End it before starting a new one.")
+
     if access_level == StreamAccessLevel.ORG_ONLY and org_id is None:
         raise ValidationError("org_id is required when access_level is org_only")
 
@@ -80,6 +86,8 @@ async def create_stream(
         if membership is None:
             raise PermissionDeniedError("You must be a member of this organization")
 
+    secret_slug = secrets.token_urlsafe(16) if access_level == StreamAccessLevel.LINK_ONLY else None
+
     return await stream_repo.create(
         host_id=host_id,
         title=title,
@@ -89,6 +97,7 @@ async def create_stream(
         room_name=_generate_room_name(),
         status=StreamStatus.SCHEDULED,
         scheduled_at=scheduled_at,
+        secret_slug=secret_slug,
     )
 
 
@@ -106,6 +115,10 @@ async def start_stream(
         raise ValidationError("Stream is already live")
     if stream.status == StreamStatus.ENDED:
         raise ValidationError("Stream has already ended")
+
+    existing_live = await stream_repo.get_live_by_host_id(host_id)
+    if existing_live is not None and existing_live.id != stream_id:
+        raise ValidationError("You already have a live stream. End it before starting a new one.")
 
     stream = await stream_repo.update(
         stream_id,
@@ -143,17 +156,19 @@ async def end_stream(
 
 async def can_access_stream(
     stream: Stream,
-    user_id: uuid.UUID,
+    user_id: uuid.UUID | None,
     *,
     friendship_repo: FriendshipRepository,
     org_member_repo: OrganizationMemberRepository,
-    invite_link_repo: StreamInviteLinkRepository,
     invite_token: str | None = None,
 ) -> bool:
-    if stream.host_id == user_id:
+    if stream.access_level == StreamAccessLevel.PUBLIC:
         return True
 
-    if stream.access_level == StreamAccessLevel.PUBLIC:
+    if user_id is None:
+        return False
+
+    if stream.host_id == user_id:
         return True
 
     if stream.access_level == StreamAccessLevel.FRIENDS:
@@ -168,34 +183,26 @@ async def can_access_stream(
     if stream.access_level == StreamAccessLevel.LINK_ONLY:
         if invite_token is None:
             return False
-        try:
-            link = await invite_link_repo.get_by_token(invite_token)
-        except NotFoundError:
-            return False
-        if not link.is_active or link.stream_id != stream.id:
-            return False
-        if link.expires_at and link.expires_at < datetime.now(UTC):
-            return False
-        if link.max_uses and link.use_count >= link.max_uses:
-            return False
-        await invite_link_repo.increment_use_count(link.id)
-        return True
+        return invite_token == stream.secret_slug
 
     return False
 
 
 async def can_view_stream(
     stream: Stream,
-    user_id: uuid.UUID,
+    user_id: uuid.UUID | None,
     *,
     friendship_repo: FriendshipRepository,
     org_member_repo: OrganizationMemberRepository,
 ) -> bool:
     """Check if a user can view stream metadata (no invite link consumption)."""
-    if stream.host_id == user_id:
+    if stream.access_level == StreamAccessLevel.PUBLIC:
         return True
 
-    if stream.access_level == StreamAccessLevel.PUBLIC:
+    if user_id is None:
+        return False
+
+    if stream.host_id == user_id:
         return True
 
     if stream.access_level == StreamAccessLevel.FRIENDS:
@@ -216,11 +223,10 @@ async def join_stream(
     participant_repo: StreamParticipantRepository,
     friendship_repo: FriendshipRepository,
     org_member_repo: OrganizationMemberRepository,
-    invite_link_repo: StreamInviteLinkRepository,
     *,
     stream_id: uuid.UUID,
-    user_id: uuid.UUID,
-    username: str,
+    user_id: uuid.UUID | None,
+    username: str | None,
     invite_token: str | None = None,
 ) -> tuple[Stream, str]:
     stream = await stream_repo.get(id=stream_id)
@@ -232,33 +238,37 @@ async def join_stream(
         user_id,
         friendship_repo=friendship_repo,
         org_member_repo=org_member_repo,
-        invite_link_repo=invite_link_repo,
         invite_token=invite_token,
     )
     if not allowed:
         raise PermissionDeniedError("You don't have access to this stream")
 
-    is_host = stream.host_id == user_id
+    guest_id = user_id or uuid.uuid4()
+    display_name = username or f"Guest_{uuid.uuid4().hex[:6]}"
+    is_host = user_id is not None and stream.host_id == user_id
+
     token = _create_livekit_token(
         stream.room_name,
-        str(user_id),
-        name=username,
+        str(guest_id),
+        name=display_name,
         can_publish=is_host,
         can_subscribe=True,
     )
 
-    existing = await participant_repo.get_or_none(
-        stream_id=stream_id, user_id=user_id, left_at__is_null=True
-    )
-    if existing is None:
-        from .models import ParticipantRole
-
-        await participant_repo.create(
-            stream_id=stream_id,
-            user_id=user_id,
-            role=ParticipantRole.HOST if stream.host_id == user_id else ParticipantRole.VIEWER,
-            joined_at=datetime.now(UTC),
+    # Only track participation for authenticated users
+    if user_id is not None:
+        existing = await participant_repo.get_or_none(
+            stream_id=stream_id, user_id=user_id, left_at__is_null=True
         )
+        if existing is None:
+            from .models import ParticipantRole
+
+            await participant_repo.create(
+                stream_id=stream_id,
+                user_id=user_id,
+                role=ParticipantRole.HOST if is_host else ParticipantRole.VIEWER,
+                joined_at=datetime.now(UTC),
+            )
 
     return stream, token
 
@@ -288,6 +298,7 @@ async def list_live_streams_for_user(
             if membership is not None:
                 visible.append(stream)
             continue
+        # LINK_ONLY streams never appear in listings
     return visible
 
 
@@ -351,10 +362,8 @@ async def get_live_stream_by_username(
     org_member_repo: OrganizationMemberRepository,
     *,
     username: str,
-    viewer_id: uuid.UUID,
+    viewer_id: uuid.UUID | None,
 ) -> Stream | None:
-    from core.exceptions import NotFoundError
-
     try:
         user = await user_repo.get_by_username(username)
     except NotFoundError:
@@ -367,3 +376,17 @@ async def get_live_stream_by_username(
     ):
         return None
     return stream
+
+
+async def get_live_stream_by_slug(
+    stream_repo: StreamRepository,
+    user_repo: UserRepository,
+    *,
+    username: str,
+    slug: str,
+) -> Stream | None:
+    try:
+        user = await user_repo.get_by_username(username)
+    except NotFoundError:
+        return None
+    return await stream_repo.get_live_by_host_and_slug(user.id, slug)

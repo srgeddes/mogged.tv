@@ -4,9 +4,9 @@ import { NavDock } from "@/components/common/nav-dock"
 
 export function HomeLayout() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overscroll-none bg-background">
       <Navbar />
-      <main className="pb-24 pt-16">
+      <main className="mx-auto max-w-7xl px-6 pb-24 pt-16">
         <Outlet />
       </main>
       <NavDock />

@@ -8,9 +8,10 @@ interface StreamCardProps {
   stream: Stream
   size?: "sm" | "md" | "lg"
   onClick?: () => void
+  openInNewWindow?: boolean
 }
 
-export function StreamCard({ stream, size = "md", onClick }: StreamCardProps) {
+export function StreamCard({ stream, size = "md", onClick, openInNewWindow }: StreamCardProps) {
   const navigate = useNavigate()
   const isLive = stream.status === "live"
 
@@ -26,7 +27,11 @@ export function StreamCard({ stream, size = "md", onClick }: StreamCardProps) {
         if (onClick) {
           onClick()
         } else if (stream.status === "live") {
-          navigate(`/${stream.host_username}`)
+          if (openInNewWindow) {
+            window.open(`/${stream.host_username}`, "mogged-stream")
+          } else {
+            navigate(`/${stream.host_username}`)
+          }
         }
       }}
       className={cn(
@@ -54,7 +59,7 @@ export function StreamCard({ stream, size = "md", onClick }: StreamCardProps) {
             )}
           </div>
           {isLive && (
-            <span className="flex items-center gap-1.5 rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-400">
+            <span className="flex items-center gap-1.5 rounded-full bg-live/20 px-2 py-0.5 text-xs font-medium text-live">
               <Radio className="h-3 w-3" />
               LIVE
             </span>
@@ -70,15 +75,13 @@ export function StreamCard({ stream, size = "md", onClick }: StreamCardProps) {
           <span className="font-mono text-xs text-muted-foreground">
             {stream.host_display_name ?? stream.host_username}
           </span>
-          {stream.access_level !== "public" && (
-            <span className="ml-auto rounded-full border border-border/40 px-2 py-0.5 text-[10px] text-muted-foreground">
-              {stream.access_level === "friends"
-                ? "Friends"
-                : stream.access_level === "org_only"
-                  ? "Org Only"
-                  : "Invite"}
-            </span>
-          )}
+          <span className="ml-auto rounded-full border border-border/40 px-2 py-0.5 text-[10px] text-muted-foreground">
+            {stream.access_level === "friends"
+              ? "Friends"
+              : stream.access_level === "org_only"
+                ? "Org Only"
+                : "Private"}
+          </span>
         </div>
       </div>
     </button>

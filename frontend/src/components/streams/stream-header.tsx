@@ -6,6 +6,7 @@ import {
   useRemoteParticipants,
 } from "@livekit/components-react"
 import { ConnectionState } from "livekit-client"
+import { AnimatePresence, motion } from "framer-motion"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { Stream } from "@/types"
 
@@ -50,10 +51,20 @@ export function StreamHeader({ stream }: StreamHeaderProps) {
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5 text-xs text-white/70">
           <Users className="h-3.5 w-3.5" />
-          {viewerCount}
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={viewerCount}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {viewerCount}
+            </motion.span>
+          </AnimatePresence>
         </span>
         {connectionState === ConnectionState.Connected && (
-          <span className="flex items-center gap-1.5 rounded-full bg-red-500/90 px-2.5 py-1 text-xs font-semibold text-white">
+          <span className="flex items-center gap-1.5 rounded-full bg-live px-2.5 py-1 text-xs font-semibold text-live-foreground">
             <Radio className="h-3 w-3 animate-pulse" />
             LIVE
           </span>

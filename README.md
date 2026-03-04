@@ -34,6 +34,30 @@ mogged.tv gives you:
 - **Database:** PostgreSQL
 - **Hosting:** Any VPS (Hetzner, DigitalOcean, EC2, etc.)
 
+## Features
+
+### Streaming & access control
+
+- **Multiple access levels** — public, friends-only, org-only, and invite-link-only streams
+- **Organizations** — create groups, manage members with roles, restrict streams to org members
+- **Friends system** — send/accept/decline friend requests, stream to friends only
+- **Invite links** — generate shareable links with optional expiration and max-use limits
+
+### Security
+
+- **JWT authentication** — short-lived tokens with enforced secret strength (32+ chars required at startup)
+- **Hardened JWT decode** — explicit signature verification and required claims (`sub`, `exp`, `iat`)
+- **Timing-safe login** — constant-time password verification prevents email enumeration
+- **Generic error messages** — no leaking of internal IDs, filter criteria, or field values in API responses
+- **Security headers** — X-Content-Type-Options, X-Frame-Options, Strict-Transport-Security on every response
+- **Restricted CORS** — explicit allow-lists for methods and headers (no wildcards)
+- **Stream visibility enforcement** — all read endpoints respect access levels, not just join
+
+### Other
+
+- **Trivia system** — built-in trivia with categories, difficulty levels, and aura scoring
+- **User profiles** — display names, avatars, stats
+
 ## Current status
 
 Early MVP — actively being built.

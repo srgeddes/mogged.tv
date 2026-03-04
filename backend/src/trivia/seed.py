@@ -499,8 +499,10 @@ async def _fetch_opentdb_batch(
     difficulty: str,
     amount: int,
     token: str,
+    *,
+    retries: int = 3,
 ) -> list[dict]:
-    """Fetch a batch of questions from OpenTDB."""
+    """Fetch a batch of questions from OpenTDB with retry."""
     params = {
         "amount": min(amount, MAX_PER_REQUEST),
         "category": category_id,
@@ -508,15 +510,26 @@ async def _fetch_opentdb_batch(
         "type": "multiple",
         "token": token,
     }
-    resp = await client.get(OPENTDB_BASE, params=params)
-    data = resp.json()
-    code = data.get("response_code")
-    # 0 = success, 4 = token exhausted (no more unique questions)
-    if code not in (0, 4):
-        print(f"    ⚠ OpenTDB code {code} for cat={category_id} diff={difficulty}")
-    if code != 0:
-        return []
-    return data.get("results", [])
+    for attempt in range(retries):
+        try:
+            resp = await client.get(OPENTDB_BASE, params=params)
+            data = resp.json()
+            code = data.get("response_code")
+            # 0 = success, 4 = token exhausted (no more unique questions)
+            if code not in (0, 4):
+                print(f"    ⚠ OpenTDB code {code} for cat={category_id} diff={difficulty}")
+            if code != 0:
+                return []
+            return data.get("results", [])
+        except httpx.ConnectError:
+            if attempt < retries - 1:
+                wait = (attempt + 1) * 10
+                print(f"    ⚠ Connection error, retrying in {wait}s...")
+                await asyncio.sleep(wait)
+            else:
+                print(f"    ✗ Failed after {retries} retries")
+                return []
+    return []
 
 
 async def _seed_opentdb(

@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom"
-import { Home, Flame, BarChart3, Users, Building2 } from "lucide-react"
+import { Home, Sparkles, BarChart3, Users, Building2 } from "lucide-react"
 import { FloatingDock } from "@/components/aceternity/floating-dock"
 
 const NAV_ITEMS = [
   { title: "Home", icon: <Home className="h-full w-full" />, href: "/home/feed" },
-  { title: "Aura", icon: <Flame className="h-full w-full" />, href: "/home/aura" },
+  { title: "Aura", icon: <Sparkles className="h-full w-full" />, href: "/home/aura" },
   { title: "Stats", icon: <BarChart3 className="h-full w-full" />, href: "/home/stats" },
   { title: "Friends", icon: <Users className="h-full w-full" />, href: "/home/friends" },
   { title: "Orgs", icon: <Building2 className="h-full w-full" />, href: "/home/orgs" },

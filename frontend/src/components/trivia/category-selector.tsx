@@ -9,7 +9,7 @@ interface CategorySelectorProps {
 
 export function CategorySelector({ categories, selected, onSelect }: CategorySelectorProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+    <div className="flex gap-2 overflow-x-auto pb-2">
       <button
         onClick={() => onSelect(null)}
         className={cn(

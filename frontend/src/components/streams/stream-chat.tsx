@@ -4,6 +4,7 @@ import {
   useParticipants,
   useSpeakingParticipants,
 } from "@livekit/components-react"
+import { AnimatePresence, motion } from "framer-motion"
 import { Send, Mic } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -18,18 +19,19 @@ function ParticipantList() {
     <div className="border-b border-border/40 px-4 py-2">
       <div className="flex flex-wrap gap-1.5">
         {participants.map((p) => (
-          <span
+          <motion.span
             key={p.identity}
+            layout
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors",
               speakingIds.has(p.identity)
-                ? "bg-emerald-500/20 text-emerald-400"
+                ? "bg-success/20 text-success ring-1 ring-success/30"
                 : "bg-white/5 text-muted-foreground",
             )}
           >
             {speakingIds.has(p.identity) && <Mic className="h-2.5 w-2.5" />}
             {p.name || p.identity}
-          </span>
+          </motion.span>
         ))}
       </div>
     </div>
@@ -68,20 +70,28 @@ export function StreamChat() {
           </p>
         ) : (
           <div className="space-y-2">
-            {chatMessages.map((msg, i) => (
-              <div key={i} className="text-sm">
-                <span className="font-mono text-xs font-medium text-primary-foreground/80">
-                  {msg.from?.name || msg.from?.identity || "anon"}
-                </span>
-                <span className="ml-2 text-xs text-muted-foreground">
-                  {new Date(msg.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-                <p className="mt-0.5 break-words text-xs text-foreground/80">{msg.message}</p>
-              </div>
-            ))}
+            <AnimatePresence initial={false}>
+              {chatMessages.map((msg) => (
+                <motion.div
+                  key={`${msg.from?.identity ?? "anon"}-${msg.timestamp}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="text-sm"
+                >
+                  <span className="font-mono text-xs font-medium text-primary-foreground/80">
+                    {msg.from?.name || msg.from?.identity || "anon"}
+                  </span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  <p className="mt-0.5 break-words text-xs text-foreground/80">{msg.message}</p>
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -96,14 +106,16 @@ export function StreamChat() {
             className="h-8 text-xs"
             maxLength={500}
           />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={isSending || !message.trim()}
-            className="h-8 w-8 shrink-0"
-          >
-            <Send className="h-3.5 w-3.5" />
-          </Button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.92 }}>
+            <Button
+              type="submit"
+              size="icon"
+              disabled={isSending || !message.trim()}
+              className="h-8 w-8 shrink-0"
+            >
+              <Send className="h-3.5 w-3.5" />
+            </Button>
+          </motion.div>
         </div>
       </form>
     </div>

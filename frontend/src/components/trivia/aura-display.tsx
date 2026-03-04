@@ -50,10 +50,10 @@ export function AuraDisplay({ balance, totalAnswered, accuracy, streak }: AuraDi
   }, [balance])
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-4">
       <div className="relative">
         <AuroraText
-          className="font-display text-5xl font-black tracking-tight sm:text-6xl"
+          className="font-display text-6xl font-black tracking-tight sm:text-7xl"
           colors={["#003153", "#0066aa", "#ffffff", "#0099dd"]}
           speed={2}
         >
@@ -74,7 +74,7 @@ export function AuraDisplay({ balance, totalAnswered, accuracy, streak }: AuraDi
           ))}
         </AnimatePresence>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-base text-muted-foreground">
         {totalAnswered > 0 ? (
           <>
             {totalAnswered} answered · {accuracy}% accuracy
@@ -83,7 +83,7 @@ export function AuraDisplay({ balance, totalAnswered, accuracy, streak }: AuraDi
             )}
           </>
         ) : (
-          "Answer trivia to earn aura"
+          "Answer trivia to farm aura"
         )}
       </p>
     </div>

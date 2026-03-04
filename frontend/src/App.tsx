@@ -78,14 +78,8 @@ function AppRoutes() {
           </PublicRoute>
         }
       />
-      <Route
-        path="/:username"
-        element={
-          <ProtectedRoute>
-            <StreamPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/:username/:slug" element={<StreamPage />} />
+      <Route path="/:username" element={<StreamPage />} />
       <Route
         path="/home"
         element={

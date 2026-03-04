@@ -141,6 +141,23 @@ Services raise domain exceptions. Routers catch them and map to HTTP responses. 
 - No video/blob storage in Postgres. Use S3, store the URL.
 - Keep schema simple: `users`, `streams`, `stream_participants` to start.
 
+### Color palette
+
+Semantic color tokens are defined as CSS variables in `frontend/src/index.css` and mapped in `frontend/tailwind.config.js`. **Always use these semantic tokens — never use raw Tailwind colors for these purposes.**
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `live` | `--live` (red) | LIVE badges, end stream button, active recording, anything "live" |
+| `live-foreground` | `--live-foreground` | Text on live backgrounds |
+| `success` | `--success` (emerald) | Online indicators, speaking state, success toasts |
+| `success-foreground` | `--success-foreground` | Text on success backgrounds |
+| `warning` | `--warning` (amber) | Reconnecting state, caution indicators |
+| `warning-foreground` | `--warning-foreground` | Text on warning backgrounds |
+
+Usage: `bg-live`, `text-live`, `bg-live/20`, `text-success`, `bg-warning`, etc.
+
+Existing shadcn tokens (`primary`, `destructive`, `muted`, etc.) remain for UI chrome. The tokens above are for **streaming-specific semantic states**.
+
 ### React / Frontend
 
 - Functional components and hooks only. No class components.

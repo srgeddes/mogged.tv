@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { AceternityInput } from "@/components/aceternity/input"
 import { Label } from "@/components/ui/label"
 import { LoadingButton } from "@/components/common/loading-button"
 
@@ -45,7 +45,7 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
     <Card className="w-full max-w-sm border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="font-display text-2xl font-bold">Join the mog</CardTitle>
-        <CardDescription>Create your account. It takes 10 seconds.</CardDescription>
+        <CardDescription>Create your account</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,7 +56,7 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
           )}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input
+            <AceternityInput
               id="username"
               type="text"
               placeholder="your-handle"
@@ -69,7 +69,7 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="signup-email">Email</Label>
-            <Input
+            <AceternityInput
               id="signup-email"
               type="email"
               placeholder="you@example.com"
@@ -81,10 +81,10 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="signup-password">Password</Label>
-            <Input
+            <AceternityInput
               id="signup-password"
               type="password"
-              placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+              placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -93,10 +93,10 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirm-password">Confirm password</Label>
-            <Input
+            <AceternityInput
               id="confirm-password"
               type="password"
-              placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+              placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required

@@ -24,20 +24,56 @@ if TYPE_CHECKING:
 class StreamRepository(BaseRepository[Stream]):
     model = Stream
 
+    async def get(self, **filters: Any) -> Stream:
+
+        stmt = self._apply_filters(self._base_query(), filters).options(selectinload(Stream.host))
+        result = await self.session.execute(stmt)
+        row = result.scalar_one_or_none()
+        if row is None:
+            from core.exceptions import NotFoundError
+
+            raise NotFoundError(self.model.__name__, **filters)
+        return row
+
     async def get_by_room_name(self, room_name: str) -> Stream:
         return await self.get(room_name=room_name)
 
     async def list_live(self) -> Sequence[Stream]:
-        return await self.list(
-            status=StreamStatus.LIVE,
-            order_by=[OrderBy("started_at", SortDirection.DESC)],
+        from sqlalchemy import select
+
+        stmt = (
+            select(Stream)
+            .where(Stream.status == StreamStatus.LIVE)
+            .options(selectinload(Stream.host))
+            .order_by(Stream.started_at.desc())
         )
+        if hasattr(Stream, "deleted_at"):
+            stmt = stmt.where(Stream.deleted_at.is_(None))
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
 
     async def list_by_host(self, host_id: Any) -> Sequence[Stream]:
         return await self.list(
             host_id=host_id,
             order_by=[OrderBy("created_at", SortDirection.DESC)],
         )
+
+    async def get_live_by_host_and_slug(self, host_id: Any, slug: str) -> Stream | None:
+        from sqlalchemy import select
+
+        stmt = (
+            select(Stream)
+            .where(
+                Stream.host_id == host_id,
+                Stream.status == StreamStatus.LIVE,
+                Stream.secret_slug == slug,
+            )
+            .options(selectinload(Stream.host))
+        )
+        if hasattr(Stream, "deleted_at"):
+            stmt = stmt.where(Stream.deleted_at.is_(None))
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def get_live_by_host_id(self, host_id: Any) -> Stream | None:
         from sqlalchemy import select

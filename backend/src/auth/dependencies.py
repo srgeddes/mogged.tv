@@ -32,3 +32,20 @@ async def get_current_user(
         raise InvalidTokenError from exc
 
     return await service.get_current_user(repo, user_id=UUID(payload["sub"]))
+
+
+async def get_optional_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
+    repo: Annotated[UserRepository, Depends(get_user_repository)],
+) -> User | None:
+    if credentials is None:
+        return None
+
+    from core.security import decode_access_token
+
+    try:
+        payload = decode_access_token(credentials.credentials)
+    except jwt.PyJWTError as exc:
+        raise InvalidTokenError from exc
+
+    return await service.get_current_user(repo, user_id=UUID(payload["sub"]))

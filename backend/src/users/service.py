@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from .models import User, UserStats
-    from .repository import UserRepository, UserStatsRepository
+    from .repository import StatsQueryRepository, UserRepository, UserStatsRepository
 
 
 async def get_profile(repo: UserRepository, *, user_id: UUID) -> User:
@@ -58,3 +58,22 @@ async def get_user_stats(
     user_id: UUID,
 ) -> UserStats | None:
     return await stats_repo.get_or_none(user_id=user_id)
+
+
+async def get_computed_stats(
+    stats_repo: StatsQueryRepository,
+    *,
+    user_id: UUID,
+) -> dict:
+    hosting = await stats_repo.get_hosting_stats(user_id)
+    watching = await stats_repo.get_watching_stats(user_id)
+    engagement = await stats_repo.get_engagement_stats(user_id)
+    hosted_streams = await stats_repo.get_hosted_stream_history(user_id)
+    watched_streams = await stats_repo.get_watched_stream_history(user_id)
+    return {
+        "hosting": hosting,
+        "watching": watching,
+        "engagement": engagement,
+        "hosted_streams": hosted_streams,
+        "watched_streams": watched_streams,
+    }
