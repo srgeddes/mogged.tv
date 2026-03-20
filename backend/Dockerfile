@@ -13,4 +13,4 @@ COPY alembic.ini .
 
 ENV PYTHONPATH=/app/src
 
-CMD uv run uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD uv run alembic upgrade head && uv run uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
