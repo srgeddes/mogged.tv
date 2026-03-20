@@ -11,4 +11,6 @@ COPY src/ src/
 COPY alembic/ alembic/
 COPY alembic.ini .
 
-CMD uv run uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}
+ENV PYTHONPATH=/app/src
+
+CMD uv run uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

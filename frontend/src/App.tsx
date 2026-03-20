@@ -13,6 +13,7 @@ import { OrgsPage } from "@/pages/orgs-page"
 import { ProfilePage } from "@/pages/profile-page"
 import { AuraPage } from "@/pages/aura-page"
 import { Toaster } from "@/components/ui/sonner"
+import { ErrorBoundary } from "@/components/common/error-boundary"
 import type { ReactNode } from "react"
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -103,11 +104,13 @@ function AppRoutes() {
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+          <Toaster />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
