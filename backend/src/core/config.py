@@ -33,8 +33,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
-    # CORS
-    cors_origins: list[str] = ["http://localhost:3000"]
+    # CORS — accepts comma-separated string or JSON array
+    cors_origins: str = "http://localhost:3000"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",")]
 
     # S3
     s3_bucket: str = "mogged-recordings"

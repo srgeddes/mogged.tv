@@ -24,7 +24,7 @@ async function apiFetch<T>(
       headers,
     })
   } catch {
-    throw new ApiError(0, "Can't reach the server — is the backend running?")
+    throw new ApiError(0, "Something went wrong — try again in a sec")
   }
 
   if (!res.ok) {
