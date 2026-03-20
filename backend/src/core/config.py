@@ -17,8 +17,16 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
 
-    # Database
+    # Database — auto-corrects postgresql:// to postgresql+asyncpg://
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/mogged"
+
+    @model_validator(mode="after")
+    def _fix_database_url(self) -> Settings:
+        if self.database_url.startswith("postgresql://"):
+            self.database_url = self.database_url.replace(
+                "postgresql://", "postgresql+asyncpg://", 1
+            )
+        return self
 
     # Redis
     redis_url: str = "redis://localhost:6379"

@@ -28,7 +28,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Override sqlalchemy.url from settings so we don't duplicate it in alembic.ini.
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Ensure the async driver is always used, even if DATABASE_URL has a bare postgresql:// prefix.
+db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+config.set_main_option("sqlalchemy.url", db_url)
 
 target_metadata = Base.metadata
 
